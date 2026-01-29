@@ -1,6 +1,22 @@
 # แนวเตรียมสอบกลางภาค
 ## วิชา MIT-704 Information Technology Infrastructure
 
+## 📋 รูปแบบข้อสอบ
+* ข้อเขียน 5 ข้อ
+* ข้อ Lab 2 ข้อ
+
+## 🖥️ ข้อสอบ Lab (2 ข้อ)
+
+### Lab 1: Web-DNS-Email-DHCP Servers
+* ทบทวนจาก Week 6 (เรียน Online)
+* ดูวิดีโอทบทวนได้ที่: [YouTube - Lab Web-DNS-Email-DHCP](https://www.youtube.com/watch?v=gsaiG4CrBnY&t=1s)
+
+### Lab 2: Static Route
+* ทบทวน Static Route ที่เรียนใน Week 9
+* ทบทวนจาก Workshop Week 9 ที่เรียนในคลาส
+
+---
+
 ## 🔹 Module 1: Networking Today
 ประเด็นที่ต้องรู้
 * ประเภทการเชื่อมต่ออินเทอร์เน็ต: DSL, Cable, Fiber, Cellular, Satellite
