@@ -9,47 +9,54 @@ interface TopicCardProps {
 }
 
 export default function TopicCard({ module, selected, onToggle }: TopicCardProps) {
+  const moduleEmojis: Record<number, string> = {
+    1: '🌐',
+    3: '🧠',
+    4: '🔌',
+    5: '🧮',
+    7: '🔁',
+  };
+
+  const accentColor = selected
+    ? 'from-[#ffd6e8] via-[#ffe5c2] to-[#d7d5ff]'
+    : 'from-white via-white to-white';
+
   return (
-    <div
+    <button
+      type="button"
       onClick={onToggle}
-      className={`cursor-pointer rounded-lg border-2 p-4 transition-all ${
+      className={`relative w-full overflow-hidden rounded-2xl border bg-gradient-to-r ${accentColor} p-5 text-left transition-all duration-200 ${
         selected
-          ? 'border-indigo-500 bg-indigo-50 shadow-md'
-          : 'border-gray-200 bg-white hover:border-indigo-300 hover:shadow'
+          ? 'border-transparent shadow-[0_15px_40px_rgba(255,182,193,0.35)]'
+          : 'border-slate-200 hover:-translate-y-0.5 hover:shadow-[0_20px_45px_rgba(15,23,42,0.08)]'
       }`}
     >
-      <div className="flex items-start justify-between">
+      <div className="flex items-start gap-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 text-2xl shadow-inner">
+          {moduleEmojis[module.id] ?? '📘'}
+        </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900">{module.title}</h3>
-          <p className="mt-1 text-sm text-gray-600">{module.description}</p>
-          <p className="mt-2 text-xs text-gray-500">
+          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
+            module {module.id}
+          </p>
+          <h3 className="mt-1 text-lg font-semibold text-slate-900">
+            {module.title}
+          </h3>
+          <p className="mt-1.5 text-sm text-slate-600">{module.description}</p>
+          <p className="mt-3 inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-slate-600">
             {module.questionCount} คำถาม
           </p>
         </div>
-        <div
-          className={`ml-4 flex h-6 w-6 items-center justify-center rounded-full border-2 ${
+        <span
+          className={`ml-auto mt-1 flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm ${
             selected
-              ? 'border-indigo-500 bg-indigo-500 text-white'
-              : 'border-gray-300'
+              ? 'border-transparent bg-slate-900 text-white'
+              : 'border-slate-200 text-slate-400'
           }`}
         >
-          {selected && (
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          )}
-        </div>
+          {selected ? '★' : ''}
+        </span>
       </div>
-    </div>
+    </button>
   );
 }

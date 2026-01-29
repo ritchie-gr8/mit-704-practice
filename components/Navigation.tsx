@@ -16,27 +16,38 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="bg-indigo-600 text-white shadow-lg">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="font-bold text-xl">
-            MIT-704 Midterm
-          </Link>
-          <div className="flex space-x-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  pathname === item.href
-                    ? 'bg-indigo-700 text-white'
-                    : 'text-indigo-100 hover:bg-indigo-500'
-                }`}
-              >
-                <span className="mr-1">{item.icon}</span>
-                {item.label}
-              </Link>
-            ))}
+    <nav className="px-4 pt-8">
+      <div className="max-w-5xl mx-auto">
+        <div className="rounded-[32px] border border-white/60 bg-white/70 p-5 shadow-[0_20px_50px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+          <div className="flex flex-col gap-5 text-slate-700 md:flex-row md:items-center md:justify-between">
+            <Link href="/" className="flex flex-col">
+              <span className="text-sm uppercase tracking-[0.3em] text-slate-400">
+                mit-704
+              </span>
+              <span className="text-2xl font-semibold text-slate-900">
+                Midterm Studio ✨
+              </span>
+            </Link>
+            <div className="flex flex-wrap gap-2">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`flex items-center gap-1 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all ${
+                      isActive
+                        ? 'border-transparent bg-gradient-to-r from-[#f7baff] to-[#b8c0ff] text-slate-900 shadow-sm'
+                        : 'border-slate-200/80 bg-white/80 text-slate-500 hover:border-slate-300 hover:text-slate-800'
+                    }`}
+                  >
+                    <span>{item.icon}</span>
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

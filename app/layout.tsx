@@ -14,9 +14,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="th">
-      <body className="bg-gray-50 min-h-screen">
-        <Navigation />
-        <main className="max-w-4xl mx-auto px-4 py-8">{children}</main>
+      <body className="min-h-screen bg-transparent text-slate-900 antialiased">
+        <div className="min-h-screen pastel-grid">
+          <Navigation />
+          <main className="max-w-5xl mx-auto px-4 py-10">
+            <div className="rounded-[32px] border border-white/70 bg-white/80 p-6 shadow-[0_35px_80px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-10">
+              {children}
+            </div>
+          </main>
+        </div>
       </body>
     </html>
   );
