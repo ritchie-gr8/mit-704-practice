@@ -86,7 +86,7 @@ export default function ChatPage() {
       />
 
       <div className="mt-4 text-sm text-gray-500">
-        ใช้ Google Gemini 3 Flash Preview พร้อม Google Search
+        AI ตอบช้า แต่ตอบนะ (ถ้าไม่ตอบคือ credit หมดแล้ว บอกเจ้าของเติมด้วย)
       </div>
 
       <div className="mt-6 p-4 bg-gray-100 rounded-lg">

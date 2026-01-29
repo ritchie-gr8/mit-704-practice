@@ -107,6 +107,9 @@ export default function SubjectiveTestPage() {
 
   return (
     <div>
+      <div className="mt-4 text-sm text-gray-500 mb-2">
+        AI ตอบช้า แต่ตอบนะ (ถ้าไม่ตอบคือ credit หมดแล้ว บอกเจ้าของเติมด้วย)
+      </div>
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           ข้อสอบอัตนัย

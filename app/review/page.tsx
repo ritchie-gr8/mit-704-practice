@@ -1,118 +1,104 @@
-'use client';
+import { promises as fs } from 'fs';
+import path from 'path';
+import ReviewClient from './ReviewClient';
+import type { GuideModule } from './types';
 
-import { useState } from 'react';
-import { reviewSections, ReviewSection } from '@/lib/reviewContent';
-
-function ModuleCard({ section, isExpanded, onToggle }: {
-  section: ReviewSection;
-  isExpanded: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <button
-        onClick={onToggle}
-        className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
-      >
-        <div>
-          <h2 className="text-lg font-semibold text-indigo-700">{section.title}</h2>
-          <p className="text-sm text-gray-600">{section.subtitle}</p>
-        </div>
-        <svg
-          className={`w-5 h-5 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-
-      {isExpanded && (
-        <div className="px-6 pb-6 border-t border-gray-100">
-          {section.content.map((topic, idx) => (
-            <div key={idx} className="mt-4">
-              <h3 className="font-medium text-gray-900 mb-2">{topic.heading}</h3>
-              <ul className="space-y-1">
-                {topic.points.map((point, pIdx) => (
-                  <li key={pIdx} className="text-sm text-gray-700 flex items-start">
-                    <span className="text-indigo-500 mr-2 mt-1">•</span>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+function stripFormatting(text: string) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/`(.*?)`/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
-export default function ReviewPage() {
-  const [expandedModules, setExpandedModules] = useState<number[]>([]);
+function parseGuideModules(markdown: string): GuideModule[] {
+  const modules: GuideModule[] = [];
+  const moduleRegex = /###\s+(.+?)\n([\s\S]*?)(?=\n---\n|\n###\s+|$)/g;
+  let match;
+  while ((match = moduleRegex.exec(markdown)) !== null) {
+    const [, heading, body] = match;
+    const idMatch = heading.match(/Module\s+(\d+)/i);
+    const id = idMatch ? Number(idMatch[1]) : modules.length + 1;
+    const lines = body.split('\n').map((line) => line.replace(/\r/g, ''));
 
-  const toggleModule = (id: number) => {
-    setExpandedModules((prev) =>
-      prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]
-    );
-  };
+    const intro: string[] = [];
+    const sections: GuideModule['sections'] = [];
+    let currentSection: { title: string; bullets: string[] } | null = null;
 
-  const expandAll = () => {
-    setExpandedModules(reviewSections.map((s) => s.id));
-  };
+    lines.forEach((rawLine) => {
+      const line = rawLine.trim();
+      if (!line) {
+        return;
+      }
 
-  const collapseAll = () => {
-    setExpandedModules([]);
-  };
+      const leadingSpaces = rawLine.match(/^(\s*)/)?.[1].length ?? 0;
 
-  return (
-    <div>
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          สรุปเนื้อหาเตรียมสอบ
-        </h1>
-        <p className="text-gray-600">
-          ทบทวนเนื้อหาสำคัญจากแต่ละ Module
-        </p>
-      </div>
+      const sectionMatch = line.match(/^(\d+)\.\s+(.*)/);
+      if (sectionMatch) {
+        if (leadingSpaces <= 2) {
+          const title = stripFormatting(sectionMatch[2]);
+          currentSection = { title, bullets: [] };
+          sections.push(currentSection);
+        } else if (currentSection) {
+          currentSection.bullets.push(
+            `${sectionMatch[1]}. ${stripFormatting(sectionMatch[2])}`
+          );
+        }
+        return;
+      }
 
-      <div className="flex justify-end mb-4 space-x-2">
-        <button
-          onClick={expandAll}
-          className="text-sm text-indigo-600 hover:text-indigo-800"
-        >
-          เปิดทั้งหมด
-        </button>
-        <span className="text-gray-300">|</span>
-        <button
-          onClick={collapseAll}
-          className="text-sm text-gray-600 hover:text-gray-800"
-        >
-          ปิดทั้งหมด
-        </button>
-      </div>
+      const bulletMatch = line.match(/^\*\s+(.*)/);
+      if (bulletMatch) {
+        const bulletText = stripFormatting(bulletMatch[1]);
+        if (leadingSpaces <= 2) {
+          const colonIndex = bulletText.indexOf(':');
+          const sectionTitle =
+            colonIndex !== -1 ? bulletText.slice(0, colonIndex).trim() : bulletText;
+          const description = colonIndex !== -1 ? bulletText.slice(colonIndex + 1).trim() : '';
+          currentSection = { title: sectionTitle, bullets: [] };
+          if (description) {
+            currentSection.bullets.push(description);
+          }
+          sections.push(currentSection);
+        } else if (currentSection) {
+          currentSection.bullets.push(bulletText);
+        }
+        return;
+      }
 
-      <div className="space-y-4">
-        {reviewSections.map((section) => (
-          <ModuleCard
-            key={section.id}
-            section={section}
-            isExpanded={expandedModules.includes(section.id)}
-            onToggle={() => toggleModule(section.id)}
-          />
-        ))}
-      </div>
+      if (!currentSection) {
+        intro.push(stripFormatting(line));
+      } else {
+        currentSection.bullets.push(stripFormatting(line));
+      }
+    });
 
-      <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-lg">
-        <h3 className="font-medium text-green-900 mb-2">เคล็ดลับการสอบ</h3>
-        <ul className="text-sm text-green-800 space-y-1">
-          <li>• จำความแตกต่างระหว่าง OSI (7 layers) และ TCP/IP (4 layers)</li>
-          <li>• เข้าใจสูตรคำนวณ Host: 2^h - 2</li>
-          <li>• จำหลักการ Switch: Learning (Source MAC) และ Forwarding (Destination MAC)</li>
-          <li>• Bandwidth = ความจุ, Throughput = ความเร็วจริง, Goodput = ข้อมูลใช้ได้จริง</li>
-        </ul>
-      </div>
-    </div>
-  );
+    modules.push({
+      id,
+      title: stripFormatting(heading),
+      intro,
+      sections,
+    });
+  }
+
+  return modules;
+}
+
+function extractIntro(markdown: string) {
+  const [introPart] = markdown.split('---');
+  return introPart
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+}
+
+export default async function ReviewPage() {
+  const guidePath = path.join(process.cwd(), 'guide.md');
+  const guideMarkdown = await fs.readFile(guidePath, 'utf-8');
+
+  const introParagraphs = extractIntro(guideMarkdown);
+  const modules = parseGuideModules(guideMarkdown);
+
+  return <ReviewClient intro={introParagraphs} modules={modules} />;
 }
