@@ -2,6 +2,84 @@
 
 import { useState } from 'react';
 
+interface PracticeQuestion {
+  id: number;
+  ip: string;
+  cidr: number;
+  magicNumber: number;
+  networkIP: string;
+  broadcastIP: string;
+  firstUsable: string;
+  lastUsable: string;
+  totalHosts: number;
+}
+
+interface UserAnswer {
+  networkIP: string;
+  firstUsable: string;
+  lastUsable: string;
+  broadcastIP: string;
+  totalHosts: string;
+}
+
+const practiceQuestions: PracticeQuestion[] = [
+  {
+    id: 1,
+    ip: '10.0.5.100',
+    cidr: 28,
+    magicNumber: 16,
+    networkIP: '10.0.5.96',
+    broadcastIP: '10.0.5.111',
+    firstUsable: '10.0.5.97',
+    lastUsable: '10.0.5.110',
+    totalHosts: 14,
+  },
+  {
+    id: 2,
+    ip: '172.16.35.200',
+    cidr: 27,
+    magicNumber: 32,
+    networkIP: '172.16.35.192',
+    broadcastIP: '172.16.35.223',
+    firstUsable: '172.16.35.193',
+    lastUsable: '172.16.35.222',
+    totalHosts: 30,
+  },
+  {
+    id: 3,
+    ip: '192.168.1.150',
+    cidr: 25,
+    magicNumber: 128,
+    networkIP: '192.168.1.128',
+    broadcastIP: '192.168.1.255',
+    firstUsable: '192.168.1.129',
+    lastUsable: '192.168.1.254',
+    totalHosts: 126,
+  },
+  {
+    id: 4,
+    ip: '10.50.100.67',
+    cidr: 29,
+    magicNumber: 8,
+    networkIP: '10.50.100.64',
+    broadcastIP: '10.50.100.71',
+    firstUsable: '10.50.100.65',
+    lastUsable: '10.50.100.70',
+    totalHosts: 6,
+  },
+  {
+    id: 5,
+    ip: '172.20.45.220',
+    cidr: 26,
+    magicNumber: 64,
+    networkIP: '172.20.45.192',
+    broadcastIP: '172.20.45.255',
+    firstUsable: '172.20.45.193',
+    lastUsable: '172.20.45.254',
+    totalHosts: 62,
+  },
+];
+
 const cidrTable = [
   { cidr: '/24', mask: '.0', formula: '(ไม่บวก)', block: 256, hosts: 254 },
   { cidr: '/25', mask: '.128', formula: '128', block: 128, hosts: 126 },
@@ -15,6 +93,102 @@ const cidrTable = [
 
 export default function CidrGuidePage() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [userAnswers, setUserAnswers] = useState<Record<number, UserAnswer>>({});
+  const [checkedQuestions, setCheckedQuestions] = useState<Set<number>>(new Set());
+  const [showSolutions, setShowSolutions] = useState<Set<number>>(new Set());
+  const [showMagicNumber, setShowMagicNumber] = useState<Set<number>>(new Set());
+
+  const initializeAnswer = (id: number): UserAnswer => ({
+    networkIP: '',
+    firstUsable: '',
+    lastUsable: '',
+    broadcastIP: '',
+    totalHosts: '',
+  });
+
+  const updateAnswer = (questionId: number, field: keyof UserAnswer, value: string) => {
+    setUserAnswers((prev) => ({
+      ...prev,
+      [questionId]: {
+        ...(prev[questionId] || initializeAnswer(questionId)),
+        [field]: value,
+      },
+    }));
+    // Remove from checked when user modifies answer
+    setCheckedQuestions((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(questionId);
+      return newSet;
+    });
+  };
+
+  const checkAnswer = (questionId: number) => {
+    setCheckedQuestions((prev) => new Set(prev).add(questionId));
+  };
+
+  const toggleSolution = (questionId: number) => {
+    setShowSolutions((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(questionId)) {
+        newSet.delete(questionId);
+      } else {
+        newSet.add(questionId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleMagicNumber = (questionId: number) => {
+    setShowMagicNumber((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(questionId)) {
+        newSet.delete(questionId);
+      } else {
+        newSet.add(questionId);
+      }
+      return newSet;
+    });
+  };
+
+  const isCorrect = (questionId: number, field: keyof UserAnswer, correctValue: string | number): boolean => {
+    const answer = userAnswers[questionId]?.[field]?.trim() || '';
+    return answer === String(correctValue);
+  };
+
+  const getFieldStatus = (questionId: number, field: keyof UserAnswer, correctValue: string | number) => {
+    if (!checkedQuestions.has(questionId)) return 'neutral';
+    return isCorrect(questionId, field, correctValue) ? 'correct' : 'incorrect';
+  };
+
+  const getInputClassName = (status: string) => {
+    const base = 'w-full px-3 py-2 border rounded-lg font-mono text-sm focus:outline-none focus:ring-2';
+    if (status === 'correct') return `${base} border-green-500 bg-green-50 focus:ring-green-500`;
+    if (status === 'incorrect') return `${base} border-red-500 bg-red-50 focus:ring-red-500`;
+    return `${base} border-gray-300 focus:ring-teal-500`;
+  };
+
+  const resetQuestion = (questionId: number) => {
+    setUserAnswers((prev) => {
+      const newAnswers = { ...prev };
+      delete newAnswers[questionId];
+      return newAnswers;
+    });
+    setCheckedQuestions((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(questionId);
+      return newSet;
+    });
+    setShowSolutions((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(questionId);
+      return newSet;
+    });
+    setShowMagicNumber((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(questionId);
+      return newSet;
+    });
+  };
 
   return (
     <div className="space-y-8">
@@ -297,6 +471,239 @@ export default function CidrGuidePage() {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* Section 5: Practice Questions */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <button
+          onClick={() => setActiveSection(activeSection === 'practice' ? null : 'practice')}
+          className="w-full px-6 py-4 flex items-center justify-between text-left bg-teal-50 hover:bg-teal-100"
+        >
+          <h2 className="text-lg font-semibold text-teal-800">
+            5️⃣ แบบฝึกหัด: หา Network, Broadcast, Host Range (5 ข้อ)
+          </h2>
+          <span className="text-teal-600">{activeSection === 'practice' ? '−' : '+'}</span>
+        </button>
+        {activeSection === 'practice' && (
+          <div className="px-6 py-4 space-y-6">
+            <div className="bg-teal-50 border-l-4 border-teal-400 p-4">
+              <p className="text-teal-800">
+                <strong>วิธีทำ:</strong> กรอกคำตอบในช่องว่าง แล้วกด &quot;ตรวจคำตอบ&quot; เพื่อเช็คผล
+              </p>
+            </div>
+
+            {practiceQuestions.map((q) => {
+              const answer = userAnswers[q.id] || initializeAnswer(q.id);
+              const isChecked = checkedQuestions.has(q.id);
+              const allCorrect = isChecked &&
+                isCorrect(q.id, 'networkIP', q.networkIP) &&
+                isCorrect(q.id, 'firstUsable', q.firstUsable) &&
+                isCorrect(q.id, 'lastUsable', q.lastUsable) &&
+                isCorrect(q.id, 'broadcastIP', q.broadcastIP) &&
+                isCorrect(q.id, 'totalHosts', q.totalHosts);
+
+              return (
+                <div key={q.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                  {/* Question Header */}
+                  <div className={`px-4 py-3 flex items-center justify-between ${
+                    isChecked ? (allCorrect ? 'bg-green-100' : 'bg-amber-50') : 'bg-gray-50'
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <span className="bg-teal-600 text-white px-2 py-1 rounded text-sm font-bold">
+                        ข้อ {q.id}
+                      </span>
+                      <code className="text-lg font-bold text-gray-800">
+                        {q.ip}/{q.cidr}
+                      </code>
+                      {isChecked && (
+                        <span className={`text-sm font-medium ${allCorrect ? 'text-green-600' : 'text-amber-600'}`}>
+                          {allCorrect ? '✓ ถูกทั้งหมด!' : 'ยังไม่ถูกทั้งหมด'}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => toggleMagicNumber(q.id)}
+                      className={`text-sm px-3 py-1 rounded-lg transition-colors ${
+                        showMagicNumber.has(q.id)
+                          ? 'bg-indigo-100 text-indigo-700'
+                          : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                      }`}
+                    >
+                      {showMagicNumber.has(q.id) ? (
+                        <>Magic Number: <span className="font-bold">{q.magicNumber}</span></>
+                      ) : (
+                        <>ดู Hint</>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Answer Form */}
+                  <div className="px-4 py-4 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Network IP */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Network IP
+                          {isChecked && (
+                            <span className={`ml-2 ${isCorrect(q.id, 'networkIP', q.networkIP) ? 'text-green-600' : 'text-red-600'}`}>
+                              {isCorrect(q.id, 'networkIP', q.networkIP) ? '✓' : '✗'}
+                            </span>
+                          )}
+                        </label>
+                        <input
+                          type="text"
+                          value={answer.networkIP}
+                          onChange={(e) => updateAnswer(q.id, 'networkIP', e.target.value)}
+                          placeholder="เช่น 192.168.1.0"
+                          className={getInputClassName(getFieldStatus(q.id, 'networkIP', q.networkIP))}
+                        />
+                      </div>
+
+                      {/* Broadcast IP */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Broadcast IP
+                          {isChecked && (
+                            <span className={`ml-2 ${isCorrect(q.id, 'broadcastIP', q.broadcastIP) ? 'text-green-600' : 'text-red-600'}`}>
+                              {isCorrect(q.id, 'broadcastIP', q.broadcastIP) ? '✓' : '✗'}
+                            </span>
+                          )}
+                        </label>
+                        <input
+                          type="text"
+                          value={answer.broadcastIP}
+                          onChange={(e) => updateAnswer(q.id, 'broadcastIP', e.target.value)}
+                          placeholder="เช่น 192.168.1.255"
+                          className={getInputClassName(getFieldStatus(q.id, 'broadcastIP', q.broadcastIP))}
+                        />
+                      </div>
+
+                      {/* First Usable */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          First Usable
+                          {isChecked && (
+                            <span className={`ml-2 ${isCorrect(q.id, 'firstUsable', q.firstUsable) ? 'text-green-600' : 'text-red-600'}`}>
+                              {isCorrect(q.id, 'firstUsable', q.firstUsable) ? '✓' : '✗'}
+                            </span>
+                          )}
+                        </label>
+                        <input
+                          type="text"
+                          value={answer.firstUsable}
+                          onChange={(e) => updateAnswer(q.id, 'firstUsable', e.target.value)}
+                          placeholder="เช่น 192.168.1.1"
+                          className={getInputClassName(getFieldStatus(q.id, 'firstUsable', q.firstUsable))}
+                        />
+                      </div>
+
+                      {/* Last Usable */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Last Usable
+                          {isChecked && (
+                            <span className={`ml-2 ${isCorrect(q.id, 'lastUsable', q.lastUsable) ? 'text-green-600' : 'text-red-600'}`}>
+                              {isCorrect(q.id, 'lastUsable', q.lastUsable) ? '✓' : '✗'}
+                            </span>
+                          )}
+                        </label>
+                        <input
+                          type="text"
+                          value={answer.lastUsable}
+                          onChange={(e) => updateAnswer(q.id, 'lastUsable', e.target.value)}
+                          placeholder="เช่น 192.168.1.254"
+                          className={getInputClassName(getFieldStatus(q.id, 'lastUsable', q.lastUsable))}
+                        />
+                      </div>
+
+                      {/* Total Hosts */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Total Hosts (จำนวน)
+                          {isChecked && (
+                            <span className={`ml-2 ${isCorrect(q.id, 'totalHosts', q.totalHosts) ? 'text-green-600' : 'text-red-600'}`}>
+                              {isCorrect(q.id, 'totalHosts', q.totalHosts) ? '✓' : '✗'}
+                            </span>
+                          )}
+                        </label>
+                        <input
+                          type="text"
+                          value={answer.totalHosts}
+                          onChange={(e) => updateAnswer(q.id, 'totalHosts', e.target.value)}
+                          placeholder="เช่น 254"
+                          className={getInputClassName(getFieldStatus(q.id, 'totalHosts', q.totalHosts))}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      <button
+                        onClick={() => checkAnswer(q.id)}
+                        className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors"
+                      >
+                        ตรวจคำตอบ
+                      </button>
+                      <button
+                        onClick={() => toggleSolution(q.id)}
+                        className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-200 transition-colors"
+                      >
+                        {showSolutions.has(q.id) ? 'ซ่อนเฉลย' : 'ดูเฉลย'}
+                      </button>
+                      <button
+                        onClick={() => resetQuestion(q.id)}
+                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                      >
+                        ล้างคำตอบ
+                      </button>
+                    </div>
+
+                    {/* Solution */}
+                    {showSolutions.has(q.id) && (
+                      <div className="mt-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                        <h4 className="font-bold text-indigo-800 mb-3">เฉลยพร้อมวิธีคิด</h4>
+                        <div className="space-y-2 text-sm">
+                          <p className="text-indigo-700">
+                            <strong>Magic Number:</strong> 2<sup>(32-{q.cidr})</sup> = {q.magicNumber}
+                          </p>
+                          <p className="text-gray-600">
+                            <strong>วิธีคิด:</strong> Octet สุดท้าย = {q.ip.split('.')[3]},
+                            หาร {q.magicNumber} = {Math.floor(parseInt(q.ip.split('.')[3]) / q.magicNumber)} ก้อน
+                            → Network Octet = {Math.floor(parseInt(q.ip.split('.')[3]) / q.magicNumber)} × {q.magicNumber} = {Math.floor(parseInt(q.ip.split('.')[3]) / q.magicNumber) * q.magicNumber}
+                          </p>
+                        </div>
+                        <table className="w-full text-sm mt-3">
+                          <tbody className="divide-y divide-indigo-200">
+                            <tr>
+                              <td className="py-2 text-gray-600 w-1/3">Network IP</td>
+                              <td className="py-2 font-mono font-bold text-indigo-700">{q.networkIP}</td>
+                            </tr>
+                            <tr>
+                              <td className="py-2 text-gray-600">First Usable</td>
+                              <td className="py-2 font-mono font-bold">{q.firstUsable}</td>
+                            </tr>
+                            <tr>
+                              <td className="py-2 text-gray-600">Last Usable</td>
+                              <td className="py-2 font-mono font-bold">{q.lastUsable}</td>
+                            </tr>
+                            <tr>
+                              <td className="py-2 text-gray-600">Broadcast IP</td>
+                              <td className="py-2 font-mono font-bold text-purple-700">{q.broadcastIP}</td>
+                            </tr>
+                            <tr>
+                              <td className="py-2 text-gray-600">Total Hosts</td>
+                              <td className="py-2 font-mono font-bold text-green-700">{q.totalHosts}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
