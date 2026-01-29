@@ -106,7 +106,7 @@ export default function CidrGuidePage() {
           className="w-full px-6 py-4 flex items-center justify-between text-left bg-purple-50 hover:bg-purple-100"
         >
           <h2 className="text-lg font-semibold text-purple-800">
-            2️⃣ แปลง Subnet Mask เป็น /Prefix
+            2️⃣ แปลง Subnet Mask เป็น /Prefix (อาจไม่ออกสอบ)
           </h2>
           <span className="text-purple-600">{activeSection === 'mask' ? '−' : '+'}</span>
         </button>
