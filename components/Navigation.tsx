@@ -8,6 +8,7 @@ export default function Navigation() {
 
   const navItems = [
     { href: '/', label: 'หน้าหลัก', icon: '🏠' },
+    { href: '/exam-guide', label: 'แนวข้อสอบ', icon: '🧠' },
     { href: '/review', label: 'ทบทวน', icon: '📖' },
     { href: '/cidr-guide', label: 'CIDR', icon: '🔢' },
     { href: '/quiz', label: 'ปรนัย', icon: '✅' },
