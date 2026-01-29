@@ -1,7 +1,38 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import type { GuideModule } from './types';
+
+function renderTextWithLinks(text: string) {
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const parts: (string | JSX.Element)[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = linkRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    const [, linkText, href] = match;
+    parts.push(
+      <Link
+        key={match.index}
+        href={href}
+        className="text-blue-600 underline underline-offset-2 hover:text-blue-800"
+      >
+        {linkText}
+      </Link>
+    );
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : text;
+}
 
 interface ReviewClientProps {
   intro: string[];
@@ -86,7 +117,7 @@ export default function ReviewClient({ intro, modules }: ReviewClientProps) {
                 <div className="border-t border-slate-100 px-6 py-6 text-sm text-slate-700">
                   {module.intro.slice(1).map((paragraph) => (
                     <p key={paragraph} className="mb-4 leading-relaxed">
-                      {paragraph}
+                      {renderTextWithLinks(paragraph)}
                     </p>
                   ))}
                   <div className="space-y-6">
@@ -97,7 +128,7 @@ export default function ReviewClient({ intro, modules }: ReviewClientProps) {
                           {section.bullets.map((bullet, idx) => (
                             <li key={`${section.title}-${idx}`} className="flex gap-3 leading-relaxed">
                               <span className="text-slate-400">•</span>
-                              <span>{bullet}</span>
+                              <span>{renderTextWithLinks(bullet)}</span>
                             </li>
                           ))}
                         </ul>
