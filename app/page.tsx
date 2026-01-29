@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import TopicCard from '@/components/TopicCard';
 import { modules } from '@/lib/questions';
 import { storage } from '@/lib/storage';
+import Image from 'next/image';
 
 export default function Home() {
   const router = useRouter();
@@ -49,11 +50,20 @@ export default function Home() {
         <div className="relative z-10 grid gap-6 lg:grid-cols-2">
           <div>
             <p className="text-sm uppercase tracking-[0.5em] text-slate-600">
-              midterm prep · cute mode
+              midterm prep
             </p>
-            <h1 className="mt-3 text-4xl font-semibold leading-tight text-slate-900 sm:text-5xl">
-              พร้อมสอบ MIT-704
-            </h1>
+            <div className="mt-4 flex items-center gap-3">
+              <Image
+                src="/school_test_seifuku_girl.png"
+                alt="Logo"
+                width={100}
+                height={100}
+                className="rounded-full border border-white/50 bg-white/60 p-1"
+              />
+              <p className="text-base font-semibold text-slate-900">
+                ไม่เน้นเรียนเก่ง แต่เน้นเรียนจบ
+              </p>
+            </div>
             <p className="mt-4 text-base text-slate-700">
               เลือก Module ที่ชอบ แล้วปล่อยให้เราออกข้อสอบให้อัตโนมัติ ทั้งแบบปรนัย
               และอัตนัย พร้อมรีวิวแบบ AI หลังทำเสร็จ
