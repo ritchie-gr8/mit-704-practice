@@ -13,11 +13,13 @@ export default function QuizPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [missingSelection, setMissingSelection] = useState(false);
 
   useEffect(() => {
     const state = storage.getQuizState();
     if (!state || state.selectedModules.length === 0) {
-      router.push('/');
+      setMissingSelection(true);
+      setIsLoading(false);
       return;
     }
 
@@ -27,7 +29,8 @@ export default function QuizPage() {
     setCurrentIndex(state.currentQuestion);
     setAnswers(state.answers);
     setIsLoading(false);
-  }, [router]);
+    setMissingSelection(false);
+  }, []);
 
   const handleSelectAnswer = (answerIndex: number) => {
     const questionId = questions[currentIndex].id;
@@ -98,6 +101,25 @@ export default function QuizPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-gray-500">กำลังโหลด...</div>
+      </div>
+    );
+  }
+
+  if (missingSelection) {
+    return (
+      <div className="rounded-3xl border border-slate-100 bg-white/80 p-8 text-center shadow-sm">
+        <p className="text-lg font-semibold text-slate-800">
+          เลือก Module บนหน้าหลักก่อนเริ่มทำแบบทดสอบปรนัยนะคะ 💡
+        </p>
+        <p className="mt-2 text-sm text-slate-500">
+          ระบบต้องรู้ว่าคุณอยากฝึกหัวข้อไหนก่อน จึงจะสร้างข้อสอบให้ได้
+        </p>
+        <button
+          onClick={() => router.push('/')}
+          className="mt-6 rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+        >
+          กลับไปเลือก Module
+        </button>
       </div>
     );
   }
