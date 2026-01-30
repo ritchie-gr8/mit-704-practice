@@ -6,6 +6,7 @@ interface PracticeQuestion {
   id: number;
   ip: string;
   cidr: number;
+  subnetMask: string;
   magicNumber: number;
   networkIP: string;
   broadcastIP: string;
@@ -15,6 +16,7 @@ interface PracticeQuestion {
 }
 
 interface UserAnswer {
+  subnetMask: string;
   networkIP: string;
   firstUsable: string;
   lastUsable: string;
@@ -27,6 +29,7 @@ const practiceQuestions: PracticeQuestion[] = [
     id: 1,
     ip: '10.0.5.100',
     cidr: 28,
+    subnetMask: '255.255.255.240',
     magicNumber: 16,
     networkIP: '10.0.5.96',
     broadcastIP: '10.0.5.111',
@@ -38,6 +41,7 @@ const practiceQuestions: PracticeQuestion[] = [
     id: 2,
     ip: '172.16.35.200',
     cidr: 27,
+    subnetMask: '255.255.255.224',
     magicNumber: 32,
     networkIP: '172.16.35.192',
     broadcastIP: '172.16.35.223',
@@ -49,6 +53,7 @@ const practiceQuestions: PracticeQuestion[] = [
     id: 3,
     ip: '192.168.1.150',
     cidr: 25,
+    subnetMask: '255.255.255.128',
     magicNumber: 128,
     networkIP: '192.168.1.128',
     broadcastIP: '192.168.1.255',
@@ -60,6 +65,7 @@ const practiceQuestions: PracticeQuestion[] = [
     id: 4,
     ip: '10.50.100.67',
     cidr: 29,
+    subnetMask: '255.255.255.248',
     magicNumber: 8,
     networkIP: '10.50.100.64',
     broadcastIP: '10.50.100.71',
@@ -71,6 +77,7 @@ const practiceQuestions: PracticeQuestion[] = [
     id: 5,
     ip: '172.20.45.220',
     cidr: 26,
+    subnetMask: '255.255.255.192',
     magicNumber: 64,
     networkIP: '172.20.45.192',
     broadcastIP: '172.20.45.255',
@@ -99,6 +106,7 @@ export default function CidrGuidePage() {
   const [showMagicNumber, setShowMagicNumber] = useState<Set<number>>(new Set());
 
   const initializeAnswer = (id: number): UserAnswer => ({
+    subnetMask: '',
     networkIP: '',
     firstUsable: '',
     lastUsable: '',
@@ -498,6 +506,7 @@ export default function CidrGuidePage() {
               const answer = userAnswers[q.id] || initializeAnswer(q.id);
               const isChecked = checkedQuestions.has(q.id);
               const allCorrect = isChecked &&
+                isCorrect(q.id, 'subnetMask', q.subnetMask) &&
                 isCorrect(q.id, 'networkIP', q.networkIP) &&
                 isCorrect(q.id, 'firstUsable', q.firstUsable) &&
                 isCorrect(q.id, 'lastUsable', q.lastUsable) &&
@@ -542,6 +551,25 @@ export default function CidrGuidePage() {
                   {/* Answer Form */}
                   <div className="px-4 py-4 space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Subnet Mask */}
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Subnet Mask
+                          {isChecked && (
+                            <span className={`ml-2 ${isCorrect(q.id, 'subnetMask', q.subnetMask) ? 'text-green-600' : 'text-red-600'}`}>
+                              {isCorrect(q.id, 'subnetMask', q.subnetMask) ? '✓' : '✗'}
+                            </span>
+                          )}
+                        </label>
+                        <input
+                          type="text"
+                          value={answer.subnetMask}
+                          onChange={(e) => updateAnswer(q.id, 'subnetMask', e.target.value)}
+                          placeholder="เช่น 255.255.255.0"
+                          className={getInputClassName(getFieldStatus(q.id, 'subnetMask', q.subnetMask))}
+                        />
+                      </div>
+
                       {/* Network IP */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -676,6 +704,10 @@ export default function CidrGuidePage() {
                         </div>
                         <table className="w-full text-sm mt-3">
                           <tbody className="divide-y divide-indigo-200">
+                            <tr className="bg-amber-50">
+                              <td className="py-2 text-gray-600 w-1/3">Subnet Mask</td>
+                              <td className="py-2 font-mono font-bold text-amber-700">{q.subnetMask}</td>
+                            </tr>
                             <tr>
                               <td className="py-2 text-gray-600 w-1/3">Network IP</td>
                               <td className="py-2 font-mono font-bold text-indigo-700">{q.networkIP}</td>

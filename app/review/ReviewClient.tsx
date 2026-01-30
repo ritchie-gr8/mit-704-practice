@@ -64,6 +64,21 @@ export default function ReviewClient({ intro, modules }: ReviewClientProps) {
         </div>
       </section>
 
+      {/* Gemini Link */}
+      <a
+        href="https://gemini.google.com/share/5c3818297504"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 text-slate-700 shadow-sm transition hover:shadow-md hover:border-blue-200"
+      >
+        <span className="text-2xl">💬</span>
+        <div>
+          <p className="font-medium text-slate-900">ตัวอย่างการถาม-ตอบข้อสอบกับ Gemini</p>
+          <p className="text-sm text-slate-500">IP/MAC, Bandwidth, OSI vs TCP/IP, สายสัญญาณ, ISP, Teleworker</p>
+        </div>
+        <span className="ml-auto text-slate-400">→</span>
+      </a>
+
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-white/80 px-5 py-3 text-sm text-slate-600 shadow-sm">
         <p>แตะการ์ดเพื่อเปิดรายละเอียดเพิ่มเติมของแต่ละ Module</p>
         <div className="space-x-3">
