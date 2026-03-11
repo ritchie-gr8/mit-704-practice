@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { getModuleLabel } from '@/lib/finalExamContent';
+import { ModuleKey } from '@/lib/types';
 
 interface Question {
   id: number;
   question: string;
-  module: number;
+  moduleKey: ModuleKey;
 }
 
 interface ReviewItem {
@@ -64,7 +66,7 @@ export default function SubjectiveTestPage() {
       const answersArray = questions.map((q) => ({
         id: q.id,
         question: q.question,
-        module: q.module,
+        moduleKey: q.moduleKey,
         answer: answers[q.id] || '',
       }));
 
@@ -115,7 +117,7 @@ export default function SubjectiveTestPage() {
           ข้อสอบอัตนัย
         </h1>
         <p className="text-gray-600">
-          ทดสอบความเข้าใจด้วยคำถามอัตนัย 5 ข้อ ตรวจโดย AI
+          ทดสอบความเข้าใจด้วยคำถามอัตนัย 5 ข้อ ตรวจโดย AI แบบ topic ละ 1 ข้อ
         </p>
       </div>
 
@@ -134,7 +136,7 @@ export default function SubjectiveTestPage() {
           </h2>
           <p className="text-gray-600 mb-6">
             AI จะสร้างคำถามอัตนัย 5 ข้อ จากเนื้อหาวิชา MIT-704<br />
-            คุณต้องตอบคำถามแต่ละข้อด้วยตัวเอง แล้ว AI จะตรวจและให้คะแนน
+            ครอบคลุม Module 11-12, 13, 14, 16 และ 17 อย่างละ 1 ข้อ
           </p>
           <button
             onClick={generateQuestions}
@@ -174,7 +176,7 @@ export default function SubjectiveTestPage() {
                   ข้อที่ {index + 1}
                 </span>
                 <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">
-                  Module {q.module}
+                  {getModuleLabel(q.moduleKey)}
                 </span>
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-4">

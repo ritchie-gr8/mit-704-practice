@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import QuizQuestion from '@/components/QuizQuestion';
 import { getQuestionsByModules, shuffleQuestions } from '@/lib/questions';
 import { storage } from '@/lib/storage';
-import { Question, QuizResult } from '@/lib/types';
+import { ModuleKey, Question, QuizResult } from '@/lib/types';
 
 export default function QuizPage() {
   const router = useRouter();
@@ -17,13 +17,19 @@ export default function QuizPage() {
 
   useEffect(() => {
     const state = storage.getQuizState();
-    if (!state || state.selectedModules.length === 0) {
+    const selectedModules = state?.selectedModules ?? [];
+
+    if (
+      !state ||
+      selectedModules.length === 0 ||
+      selectedModules.some((moduleKey) => typeof moduleKey !== 'string')
+    ) {
       setMissingSelection(true);
       setIsLoading(false);
       return;
     }
 
-    const moduleQuestions = getQuestionsByModules(state.selectedModules);
+    const moduleQuestions = getQuestionsByModules(selectedModules as ModuleKey[]);
     const shuffled = shuffleQuestions(moduleQuestions);
     setQuestions(shuffled);
     setCurrentIndex(state.currentQuestion);
@@ -64,18 +70,18 @@ export default function QuizPage() {
 
     let score = 0;
     const wrongAnswers: { question: Question; userAnswer: number }[] = [];
-    const moduleBreakdown: Record<number, { correct: number; total: number }> = {};
+    const moduleBreakdown: Partial<Record<ModuleKey, { correct: number; total: number }>> = {};
 
     questions.forEach((q) => {
-      if (!moduleBreakdown[q.module]) {
-        moduleBreakdown[q.module] = { correct: 0, total: 0 };
+      if (!moduleBreakdown[q.moduleKey]) {
+        moduleBreakdown[q.moduleKey] = { correct: 0, total: 0 };
       }
-      moduleBreakdown[q.module].total++;
+      moduleBreakdown[q.moduleKey]!.total++;
 
       const userAnswer = answers[q.id];
       if (userAnswer === q.correctAnswer) {
         score++;
-        moduleBreakdown[q.module].correct++;
+        moduleBreakdown[q.moduleKey]!.correct++;
       } else {
         wrongAnswers.push({ question: q, userAnswer: userAnswer ?? -1 });
       }

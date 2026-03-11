@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { QuizResult } from '@/lib/types';
-import { modules } from '@/lib/questions';
+import { getModuleInfo } from '@/lib/finalExamContent';
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -65,14 +65,24 @@ export default function ResultsPage() {
           คะแนนแยกตามหัวข้อ
         </h2>
         <div className="space-y-3">
-          {Object.entries(result.moduleBreakdown).map(([moduleId, data]) => {
-            const module = modules.find((m) => m.id === Number(moduleId));
+          {Object.entries(result.moduleBreakdown).map(([moduleKey, data]) => {
+            const module =
+              moduleKey === '11-12' ||
+              moduleKey === '13' ||
+              moduleKey === '14' ||
+              moduleKey === '16' ||
+              moduleKey === '17'
+                ? getModuleInfo(moduleKey)
+                : null;
+            if (!data) {
+              return null;
+            }
             const modulePct = Math.round((data.correct / data.total) * 100);
             return (
-              <div key={moduleId}>
+              <div key={moduleKey}>
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-gray-700">
-                    {module?.title || `Module ${moduleId}`}
+                    {module ? `${module.badge}: ${module.title}` : moduleKey}
                   </span>
                   <span className="text-gray-600">
                     {data.correct}/{data.total} ({modulePct}%)
@@ -100,12 +110,18 @@ export default function ResultsPage() {
           </h2>
           <div className="space-y-6">
             {result.wrongAnswers.map(({ question, userAnswer }, index) => (
-              <div
-                key={question.id}
-                className="border-b border-gray-200 pb-4 last:border-0"
-              >
+              <div key={question.id} className="border-b border-gray-200 pb-4 last:border-0">
                 <div className="text-sm text-gray-500 mb-1">
-                  Module {question.module} - ข้อ {index + 1}
+                  {(
+                    question.moduleKey === '11-12' ||
+                    question.moduleKey === '13' ||
+                    question.moduleKey === '14' ||
+                    question.moduleKey === '16' ||
+                    question.moduleKey === '17'
+                      ? getModuleInfo(question.moduleKey).badge
+                      : 'หัวข้อเดิม'
+                  )}{' '}
+                  - ข้อ {index + 1}
                 </div>
                 <p className="font-medium text-gray-900 mb-3">
                   {question.question}

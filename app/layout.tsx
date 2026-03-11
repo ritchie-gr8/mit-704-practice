@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Navigation from '@/components/Navigation';
+import { finalExamMetadata } from '@/lib/finalExamContent';
 
 export const metadata: Metadata = {
-  title: 'MIT-704 Midterm Practice',
-  description: 'แอปฝึกทำข้อสอบ MIT-704 Information Technology Infrastructure',
+  title: finalExamMetadata.title,
+  description: finalExamMetadata.description,
 };
 
 export default function RootLayout({

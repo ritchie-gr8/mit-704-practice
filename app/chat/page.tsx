@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import ChatBox from '@/components/ChatBox';
+import { chatPromptExamples } from '@/lib/finalExamContent';
 import { ChatMessage } from '@/lib/types';
 
 export default function ChatPage() {
@@ -60,7 +61,7 @@ export default function ChatPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">ถาม AI</h1>
           <p className="text-gray-600">
-            ถามคำถามเกี่ยวกับหัวข้อในการสอบ MIT-704
+            ถามเรื่อง final scope, lab threats และการวิเคราะห์โจทย์สถานการณ์ของ MIT-704
           </p>
         </div>
         {messages.length > 0 && (
@@ -92,10 +93,9 @@ export default function ChatPage() {
       <div className="mt-6 p-4 bg-gray-100 rounded-lg">
         <h3 className="font-medium text-gray-900 mb-2">ตัวอย่างคำถาม</h3>
         <ul className="text-sm text-gray-600 space-y-1">
-          <li>• OSI Model มีกี่เลเยอร์ และแต่ละเลเยอร์ทำหน้าที่อะไร?</li>
-          <li>• วิธีคำนวณจำนวน Host ใน Subnet /24</li>
-          <li>• ความแตกต่างระหว่าง TCP และ UDP</li>
-          <li>• Switch ทำงานอย่างไร และต่างจาก Hub อย่างไร?</li>
+          {chatPromptExamples.map((example) => (
+            <li key={example}>• {example}</li>
+          ))}
         </ul>
       </div>
     </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { getModuleLabel } from '@/lib/finalExamContent';
 import { Question } from '@/lib/types';
 
 interface QuizQuestionProps {
@@ -24,7 +25,7 @@ export default function QuizQuestion({
           คำถามที่ {questionNumber} จาก {totalQuestions}
         </span>
         <span className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded">
-          Module {question.module}
+          {getModuleLabel(question.moduleKey)}
         </span>
       </div>
 

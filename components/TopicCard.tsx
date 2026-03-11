@@ -9,14 +9,6 @@ interface TopicCardProps {
 }
 
 export default function TopicCard({ module, selected, onToggle }: TopicCardProps) {
-  const moduleEmojis: Record<number, string> = {
-    1: '🌐',
-    3: '🧠',
-    4: '🔌',
-    5: '🧮',
-    7: '🔁',
-  };
-
   const accentColor = selected
     ? 'from-[#ffd6e8] via-[#ffe5c2] to-[#d7d5ff]'
     : 'from-white via-white to-white';
@@ -33,11 +25,11 @@ export default function TopicCard({ module, selected, onToggle }: TopicCardProps
     >
       <div className="flex items-start gap-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 text-2xl shadow-inner">
-          {moduleEmojis[module.id] ?? '📘'}
+          {module.emoji}
         </div>
         <div className="flex-1">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-            module {module.id}
+            {module.badge}
           </p>
           <h3 className="mt-1 text-lg font-semibold text-slate-900">
             {module.title}

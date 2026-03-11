@@ -1,59 +1,72 @@
 import OpenAI from 'openai';
 import { NextRequest, NextResponse } from 'next/server';
-import { reviewContentText } from '@/lib/reviewContent';
+import {
+  getModuleLabel,
+  getModuleTitle,
+  reviewReferenceText,
+  subjectiveRubricText,
+} from '@/lib/finalExamContent';
+import { ModuleKey } from '@/lib/types';
 
 interface QuestionAnswer {
   id: number;
   question: string;
-  module: number;
+  moduleKey: ModuleKey;
   answer: string;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const { answers } = (await request.json()) as { answers: QuestionAnswer[] };
+    const apiKey =
+      process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
 
-    if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
+    if (!apiKey) {
       return NextResponse.json(
         { error: 'OPENAI_API_KEY not configured' },
         { status: 500 }
       );
     }
 
-    const openai = new OpenAI({
-      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-    });
+    const openai = new OpenAI({ apiKey });
 
     const answersText = answers
-      .map(
-        (a) =>
-          `ข้อ ${a.id} (Module ${a.module}): ${a.question}\nคำตอบ: ${a.answer || '(ไม่ได้ตอบ)'}`
-      )
+      .map((answer) => {
+        const label = getModuleLabel(answer.moduleKey);
+        const title = getModuleTitle(answer.moduleKey);
+        return `${label}: ${title}\nคำถาม: ${answer.question}\nคำตอบนักศึกษา: ${
+          answer.answer || '(ไม่ได้ตอบ)'
+        }`;
+      })
       .join('\n\n');
 
-    const prompt = `คุณเป็นอาจารย์ตรวจข้อสอบวิชา MIT-704 Information Technology Infrastructure
+    const prompt = `คุณเป็นอาจารย์ตรวจข้อสอบปลายภาควิชา MIT-704 Information Technology Infrastructure
 
-เนื้อหาที่เกี่ยวข้อง:
-${reviewContentText}
+Reference scope:
+${reviewReferenceText}
+
+Rubric:
+${subjectiveRubricText}
 
 คำถามและคำตอบของนักศึกษา:
 ${answersText}
 
-กรุณาตรวจและให้คะแนนแต่ละข้อ โดย:
-1. ให้คะแนนแต่ละข้อ 0-10 คะแนน
-2. อธิบายว่าคำตอบถูกหรือผิดอย่างไร
-3. ให้คำตอบที่ถูกต้องหากนักศึกษาตอบผิดหรือไม่ครบถ้วน
-4. ให้คำแนะนำในการปรับปรุง
+หลักเกณฑ์การให้คะแนน:
+1. ให้คะแนนแต่ละข้อ 0-10
+2. ประเมินจากความถูกต้องของหลักการ, เหตุผล, keyword สำคัญ และลำดับ troubleshooting/mitigation
+3. ถ้าคำตอบไม่ครบ ให้บอกสิ่งที่ขาดและคำตอบที่ควรมี
+4. feedback ต้องเป็นภาษาไทย กระชับ แต่ actionable
+5. ห้ามให้คะแนนจากการใช้ถ้อยคำสวยงามอย่างเดียว ถ้า logic ผิดให้หักชัดเจน
 
-ตอบในรูปแบบ JSON เท่านั้น:
+ตอบเป็น JSON เท่านั้น:
 {
   "reviews": [
     {
       "id": 1,
       "score": 8,
       "feedback": "คำอธิบายการตรวจ",
-      "correctAnswer": "คำตอบที่ถูกต้อง (ถ้าตอบผิด)",
-      "suggestion": "คำแนะนำ"
+      "correctAnswer": "คำตอบที่ควรมี",
+      "suggestion": "คำแนะนำเพิ่มเติม"
     }
   ],
   "totalScore": 40,
@@ -77,35 +90,53 @@ ${answersText}
       store: true,
     });
 
-    console.log('OpenAI Response:', JSON.stringify(response, null, 2));
-
     const responseText = response.output_text || '';
-    console.log('Response text:', responseText);
-
-    // Try to extract JSON object from response
     let review;
 
-    // First try direct parse
     try {
       review = JSON.parse(responseText);
     } catch {
-      // Try to find JSON object in text
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         review = JSON.parse(jsonMatch[0]);
       } else {
-        // Try to find in code block
         const codeBlockMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/);
         if (codeBlockMatch) {
           review = JSON.parse(codeBlockMatch[1].trim());
         } else {
-          console.error('Could not parse response:', responseText);
           throw new Error('Invalid response format');
         }
       }
     }
 
-    return NextResponse.json(review);
+    if (!Array.isArray(review.reviews)) {
+      throw new Error('Missing review array');
+    }
+
+    const sanitizedReviews = answers.map((answer) => {
+      const matched = review.reviews.find((item: { id: number }) => item.id === answer.id);
+      return {
+        id: answer.id,
+        score:
+          typeof matched?.score === 'number'
+            ? Math.max(0, Math.min(10, Math.round(matched.score)))
+            : 0,
+        feedback: matched?.feedback || 'ยังไม่สามารถประเมินรายละเอียดได้ครบ ให้กลับไปทบทวนแนวคิดหลักของหัวข้อนี้',
+        correctAnswer: matched?.correctAnswer || undefined,
+        suggestion: matched?.suggestion || undefined,
+      };
+    });
+
+    const totalScore = sanitizedReviews.reduce((sum, item) => sum + item.score, 0);
+
+    return NextResponse.json({
+      reviews: sanitizedReviews,
+      totalScore,
+      maxScore: answers.length * 10,
+      overallFeedback:
+        review.overallFeedback ||
+        'ให้กลับไปทบทวนจุดที่คะแนนต่ำ โดยเน้นการอธิบายเหตุผลและลำดับ troubleshooting ให้ชัดกว่านี้',
+    });
   } catch (error) {
     console.error('Review answers error:', error);
     return NextResponse.json(

@@ -4,23 +4,25 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import TopicCard from '@/components/TopicCard';
 import { modules } from '@/lib/questions';
+import { finalExamMetadata } from '@/lib/finalExamContent';
 import { storage } from '@/lib/storage';
 import Image from 'next/image';
+import { ModuleKey } from '@/lib/types';
 
 export default function Home() {
   const router = useRouter();
-  const [selectedModules, setSelectedModules] = useState<number[]>([]);
+  const [selectedModules, setSelectedModules] = useState<ModuleKey[]>([]);
 
-  const toggleModule = (moduleId: number) => {
+  const toggleModule = (moduleKey: ModuleKey) => {
     setSelectedModules((prev) =>
-      prev.includes(moduleId)
-        ? prev.filter((id) => id !== moduleId)
-        : [...prev, moduleId]
+      prev.includes(moduleKey)
+        ? prev.filter((id) => id !== moduleKey)
+        : [...prev, moduleKey]
     );
   };
 
   const selectAll = () => {
-    setSelectedModules(modules.map((m) => m.id));
+    setSelectedModules(modules.map((module) => module.moduleKey));
   };
 
   const clearSelection = () => {
@@ -41,8 +43,8 @@ export default function Home() {
   };
 
   const totalQuestions = modules
-    .filter((m) => selectedModules.includes(m.id))
-    .reduce((sum, m) => sum + m.questionCount, 0);
+    .filter((module) => selectedModules.includes(module.moduleKey))
+    .reduce((sum, module) => sum + module.questionCount, 0);
 
   return (
     <div className="space-y-10">
@@ -50,7 +52,7 @@ export default function Home() {
         <div className="relative z-10 grid gap-6 lg:grid-cols-2">
           <div>
             <p className="text-sm uppercase tracking-[0.5em] text-slate-600">
-              midterm prep
+              {finalExamMetadata.heroEyebrow}
             </p>
             <div className="mt-4 flex items-center gap-3">
               <Image
@@ -61,16 +63,18 @@ export default function Home() {
                 className="rounded-full border border-white/50 bg-white/60 p-1"
               />
               <p className="text-base font-semibold text-slate-900">
-                ไม่เน้นเรียนเก่ง แต่เน้นเรียนจบ
+                อ่านโจทย์ให้ขาด แล้วตอบแบบมีเหตุผล
               </p>
             </div>
+            <h1 className="mt-4 text-3xl font-semibold text-slate-900">
+              {finalExamMetadata.heroTitle}
+            </h1>
             <p className="mt-4 text-base text-slate-700">
-              เลือก Module ที่ชอบ แล้วปล่อยให้เราออกข้อสอบให้อัตโนมัติ ทั้งแบบปรนัย
-              และอัตนัย พร้อมรีวิวแบบ AI หลังทำเสร็จ
+              {finalExamMetadata.heroSubtitle}
             </p>
             <div className="mt-6 inline-flex items-center gap-3 rounded-full bg-white/70 px-4 py-2 text-sm font-medium text-slate-700">
               <span className="text-lg">✨</span>
-              แนะนำเลือกอย่างน้อย 2 หัวข้อเพื่อความท้าทาย
+              แนะนำเลือกอย่างน้อย 2 หัวข้อเพื่อฝึกสลับบริบทแบบข้อสอบจริง
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 rounded-3xl bg-white/65 p-5 text-center text-sm font-medium text-slate-600">
@@ -97,7 +101,7 @@ export default function Home() {
                 mission today
               </p>
               <p className="mt-2 text-base text-slate-700">
-                เลือก Module ที่อยากฝึก แล้วเริ่มทำข้อสอบได้เลย
+                เลือก final topics ที่อยากฝึก แล้วเริ่มทำข้อสอบได้เลย
               </p>
             </div>
           </div>
@@ -114,7 +118,7 @@ export default function Home() {
             เลือกแล้ว {selectedModules.length} หัวข้อ ({totalQuestions} คำถาม)
           </p>
           <p className="text-base font-medium text-slate-800">
-            แตะที่การ์ดเพื่อเลือก/ยกเลิกหัวข้อ
+            แตะการ์ดเพื่อเลือกหรือยกเลิกหัวข้อที่จะออกสอบ
           </p>
         </div>
         <div className="mt-4 flex gap-2 text-sm sm:mt-0">
@@ -136,10 +140,10 @@ export default function Home() {
       <section className="space-y-4">
         {modules.map((module) => (
           <TopicCard
-            key={module.id}
+            key={module.moduleKey}
             module={module}
-            selected={selectedModules.includes(module.id)}
-            onToggle={() => toggleModule(module.id)}
+            selected={selectedModules.includes(module.moduleKey)}
+            onToggle={() => toggleModule(module.moduleKey)}
           />
         ))}
       </section>
@@ -157,15 +161,15 @@ export default function Home() {
       <section className="rounded-[28px] border border-slate-100 bg-gradient-to-br from-white to-[#f7f9ff] p-6 shadow-inner">
         <h3 className="text-lg font-semibold text-slate-900">วิธีใช้งาน</h3>
         <p className="text-sm text-slate-500">
-          ใช้เวลาสั้นๆ ก็พร้อมสอบได้แล้ว
+          เน้นอ่านให้ตรง scope final และฝึกตอบให้เป็นขั้นตอน
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           {[
-            'เลือก Module ที่อยากฝึก (เลือกได้หลายหัวข้อพร้อมกัน)',
-            'กดเริ่มทำ → ระบบจะสร้างข้อสอบใหม่ให้ทันที',
-            'ตอบคำถามทีละข้อ แล้วส่งเพื่อดูคะแนนทันที',
-            'อ่านคำอธิบายและรีวิวที่ AI สรุปให้แบบเข้าใจง่าย',
-            'ใช้หน้า Review หรือ AI Chat เพื่อทบทวนจุดที่ยังไม่มั่นใจ',
+            'เลือก final topics ที่อยากฝึก (เลือกได้หลายหัวข้อพร้อมกัน)',
+            'กดเริ่มทำเพื่อฝึกข้อสอบปรนัยจากคลัง final แบบ hardcoded',
+            'ใช้หน้าแนวข้อสอบและทบทวนเพื่อจับ keyword และรูปแบบคำตอบที่อาจารย์ชอบ',
+            'ทำข้อสอบอัตนัยเพื่อซ้อมตอบแบบ scenario-based และรับ feedback จาก AI',
+            'ใช้หน้า AI Chat ทบทวนปัญหา ping, security, redundancy และ threat scenarios',
           ].map((step, index) => (
             <div
               key={step}

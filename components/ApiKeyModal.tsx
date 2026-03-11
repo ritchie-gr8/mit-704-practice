@@ -33,15 +33,15 @@ export default function ApiKeyModal({
           ตั้งค่า API Key
         </h2>
         <p className="text-sm text-gray-600 mb-4">
-          กรุณาใส่ Google Gemini API Key ของคุณเพื่อใช้งานฟีเจอร์ AI Chat
-          คุณสามารถขอ API Key ได้ฟรีที่{' '}
+          กรุณาใส่ API Key ของคุณเพื่อใช้งานฟีเจอร์ AI Chat
+          ถ้าต้องการสร้าง key ใหม่ สามารถจัดการได้จากหน้า provider ของคุณ เช่น{' '}
           <a
-            href="https://makersuite.google.com/app/apikey"
+            href="https://platform.openai.com/api-keys"
             target="_blank"
             rel="noopener noreferrer"
             className="text-indigo-600 hover:underline"
           >
-            Google AI Studio
+            OpenAI API Keys
           </a>
         </p>
 

@@ -36,19 +36,31 @@ function renderTextWithLinks(text: string) {
 
 interface ReviewClientProps {
   intro: string[];
+  answerFramework: string[];
+  labSections: {
+    title: string;
+    bullets: string[];
+  }[];
   modules: GuideModule[];
 }
 
-export default function ReviewClient({ intro, modules }: ReviewClientProps) {
-  const [expandedIds, setExpandedIds] = useState<number[]>([]);
+export default function ReviewClient({
+  intro,
+  answerFramework,
+  labSections,
+  modules,
+}: ReviewClientProps) {
+  const [expandedIds, setExpandedIds] = useState<string[]>([]);
 
-  const toggleModule = (id: number) => {
+  const toggleModule = (moduleKey: string) => {
     setExpandedIds((prev) =>
-      prev.includes(id) ? prev.filter((moduleId) => moduleId !== id) : [...prev, id]
+      prev.includes(moduleKey)
+        ? prev.filter((id) => id !== moduleKey)
+        : [...prev, moduleKey]
     );
   };
 
-  const expandAll = () => setExpandedIds(modules.map((module) => module.id));
+  const expandAll = () => setExpandedIds(modules.map((module) => module.moduleKey));
   const collapseAll = () => setExpandedIds([]);
 
   return (
@@ -56,7 +68,7 @@ export default function ReviewClient({ intro, modules }: ReviewClientProps) {
       <section className="rounded-[28px] border border-slate-100 bg-gradient-to-br from-white to-[#f7f9ff] p-8 text-slate-800 shadow-inner">
         <p className="text-sm uppercase tracking-[0.4em] text-slate-400">review guide</p>
         <h1 className="mt-3 text-3xl font-semibold text-slate-900">สรุปเนื้อหาเตรียมสอบ</h1>
-        <p className="text-base text-slate-500">อัปเดตจาก guide.md เวอร์ชันล่าสุด</p>
+        <p className="text-base text-slate-500">อัปเดตจาก canonical final content ชุดเดียวกับทั้งแอป</p>
         <div className="mt-5 space-y-3 text-sm leading-relaxed text-slate-700">
           {intro.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
@@ -64,20 +76,45 @@ export default function ReviewClient({ intro, modules }: ReviewClientProps) {
         </div>
       </section>
 
-      {/* Gemini Link */}
-      <a
-        href="https://gemini.google.com/share/5c3818297504"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 text-slate-700 shadow-sm transition hover:shadow-md hover:border-blue-200"
-      >
-        <span className="text-2xl">💬</span>
-        <div>
-          <p className="font-medium text-slate-900">ตัวอย่างการถาม-ตอบข้อสอบกับ Gemini</p>
-          <p className="text-sm text-slate-500">IP/MAC, Bandwidth, OSI vs TCP/IP, สายสัญญาณ, ISP, Teleworker</p>
+      <section className="rounded-2xl border border-amber-100 bg-gradient-to-r from-amber-50 to-orange-50 px-6 py-5 text-sm text-slate-700 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-500">answer frame</p>
+        <h2 className="mt-2 text-lg font-semibold text-slate-900">โครงตอบข้อสอบที่ควรฝึก</h2>
+        <div className="mt-3 space-y-2">
+          {answerFramework.map((item) => (
+            <p key={item}>• {item}</p>
+          ))}
         </div>
-        <span className="ml-auto text-slate-400">→</span>
-      </a>
+      </section>
+
+      <section className="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 to-sky-50 px-6 py-5 text-sm text-slate-700 shadow-sm">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-600">lab focus</p>
+            <h2 className="mt-2 text-lg font-semibold text-slate-900">หัวข้อ lab ที่ต้องคล่อง</h2>
+          </div>
+          <Link
+            href="/exam-guide"
+            className="text-sm font-medium text-cyan-700 underline underline-offset-2"
+          >
+            ดูสรุปแนวข้อสอบ →
+          </Link>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          {labSections.map((section) => (
+            <div key={section.title} className="rounded-xl border border-cyan-100 bg-white/80 p-4">
+              <h3 className="font-semibold text-slate-900">{section.title}</h3>
+              <ul className="mt-2 space-y-1.5">
+                {section.bullets.map((bullet) => (
+                  <li key={bullet} className="flex gap-2">
+                    <span>•</span>
+                    <span>{renderTextWithLinks(bullet)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-white/80 px-5 py-3 text-sm text-slate-600 shadow-sm">
         <p>แตะการ์ดเพื่อเปิดรายละเอียดเพิ่มเติมของแต่ละ Module</p>
@@ -99,23 +136,23 @@ export default function ReviewClient({ intro, modules }: ReviewClientProps) {
 
       <div className="space-y-4">
         {modules.map((module) => {
-          const isExpanded = expandedIds.includes(module.id);
+          const isExpanded = expandedIds.includes(module.moduleKey);
           return (
             <div
-              key={module.id}
+              key={module.moduleKey}
               className="overflow-hidden rounded-[28px] border border-slate-100 bg-white/90 shadow-[0_25px_55px_rgba(15,23,42,0.08)]"
             >
               <button
-                onClick={() => toggleModule(module.id)}
+                onClick={() => toggleModule(module.moduleKey)}
                 className="flex w-full items-center justify-between px-6 py-5 text-left"
               >
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-                    module {module.id}
+                    {module.badge}
                   </p>
                   <h2 className="text-xl font-semibold text-slate-900">{module.title}</h2>
-                  {module.intro.length > 0 && (
-                    <p className="mt-1 text-sm text-slate-500">{module.intro[0]}</p>
+                  {module.overview.length > 0 && (
+                    <p className="mt-1 text-sm text-slate-500">{module.overview[0]}</p>
                   )}
                 </div>
                 <span
@@ -130,7 +167,7 @@ export default function ReviewClient({ intro, modules }: ReviewClientProps) {
               </button>
               {isExpanded && (
                 <div className="border-t border-slate-100 px-6 py-6 text-sm text-slate-700">
-                  {module.intro.slice(1).map((paragraph) => (
+                  {module.overview.slice(1).map((paragraph) => (
                     <p key={paragraph} className="mb-4 leading-relaxed">
                       {renderTextWithLinks(paragraph)}
                     </p>

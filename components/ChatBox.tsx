@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { chatPromptExamples } from '@/lib/finalExamContent';
 import { ChatMessage } from '@/lib/types';
 
 interface ChatBoxProps {
@@ -38,8 +39,16 @@ export default function ChatBox({
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
           <div className="text-center text-gray-500 mt-8">
-            <p className="text-lg mb-2">สวัสดี! ฉันช่วยตอบคำถามเกี่ยวกับ MIT-704 ได้</p>
-            <p className="text-sm">ลองถามเกี่ยวกับ Networking, OSI Model, IP Addressing หรือหัวข้ออื่นๆ</p>
+            <p className="text-lg mb-2">สวัสดี! ฉันช่วยติว final ของ MIT-704 ได้</p>
+            <p className="text-sm">
+              ลองถามเรื่อง IPv4 vs IPv6, ping ข้าม subnet, QoS, ASA/IPS/AAA,
+              redundancy หรือภัยคุกคามใน lab
+            </p>
+            <div className="mt-4 space-y-1 text-left text-xs text-gray-500">
+              {chatPromptExamples.slice(0, 3).map((example) => (
+                <p key={example}>• {example}</p>
+              ))}
+            </div>
           </div>
         )}
 

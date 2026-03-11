@@ -10,7 +10,6 @@ export default function Navigation() {
     { href: '/', label: 'หน้าหลัก', icon: '🏠' },
     { href: '/exam-guide', label: 'แนวข้อสอบ', icon: '🧠' },
     { href: '/review', label: 'ทบทวน', icon: '📖' },
-    { href: '/cidr-guide', label: 'CIDR', icon: '🔢' },
     { href: '/quiz', label: 'ปรนัย', icon: '✅' },
     { href: '/subjective-test', label: 'อัตนัย', icon: '📝' },
     { href: '/chat', label: 'ถาม AI', icon: '💬' },
@@ -26,7 +25,7 @@ export default function Navigation() {
                 mit-704
               </span>
               <span className="text-2xl font-semibold text-slate-900">
-                Midterm Studio ✨
+                Final Prep Studio
               </span>
             </Link>
             <div className="flex flex-wrap gap-2">

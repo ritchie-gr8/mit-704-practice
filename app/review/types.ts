@@ -1,7 +1,10 @@
+import { ModuleKey } from '@/lib/types';
+
 export interface GuideModule {
-  id: number;
+  moduleKey: ModuleKey;
+  badge: string;
   title: string;
-  intro: string[];
+  overview: string[];
   sections: {
     title: string;
     bullets: string[];
