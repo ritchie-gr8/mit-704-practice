@@ -12,9 +12,15 @@ export const examGuideContent = [
     return [
       `## ${info.badge}: ${info.title}`,
       'ประเด็นที่ต้องรู้',
-      ...module.mustKnow.map((item) => `* ${item}`),
+      ...module.mustKnow.flatMap((item) => [
+        `* ${item.point}`,
+        `  คำอธิบาย: ${item.explanation}`,
+      ]),
       'แนวข้อสอบ',
-      ...module.examFocus.map((item) => `* ${item}`),
+      ...module.examFocus.flatMap((item) => [
+        `* ${item.prompt}`,
+        `  คำตอบ: ${item.answer}`,
+      ]),
       '',
     ];
   }),

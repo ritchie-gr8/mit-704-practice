@@ -2,8 +2,14 @@ import { ModuleInfo, ModuleKey, Question } from './types';
 
 interface GuideModule {
   moduleKey: ModuleKey;
-  mustKnow: string[];
-  examFocus: string[];
+  mustKnow: {
+    point: string;
+    explanation: string;
+  }[];
+  examFocus: {
+    prompt: string;
+    answer: string;
+  }[];
 }
 
 interface ReviewModule {
@@ -107,71 +113,211 @@ export const guideModules: GuideModule[] = [
   {
     moduleKey: '11-12',
     mustKnow: [
-      'เหตุผลที่ IPv4 ไม่เพียงพอสำหรับอุปกรณ์จำนวนมาก และทำไมองค์กรยังต้องพึ่ง NAT',
-      'จุดเด่นของ IPv6 เช่น address space ใหญ่กว่า, header เรียบง่ายขึ้น, SLAAC และความเหมาะกับ mobile/IoT',
-      'รูปแบบ address ของ IPv4 แบบ decimal 32-bit เทียบกับ IPv6 แบบ hexadecimal 128-bit',
-      'แนวทาง migration เช่น dual stack, tunneling และ translation/NAT64',
+      {
+        point: 'เหตุผลที่ IPv4 ไม่เพียงพอสำหรับอุปกรณ์จำนวนมาก และทำไมองค์กรยังต้องพึ่ง NAT',
+        explanation:
+          'ประเด็นนี้หมายถึงคุณต้องอธิบายให้เห็นว่าปัญหาไม่ได้อยู่แค่เรื่องจำเลข IP แต่เป็นเรื่องจำนวน address ที่รองรับอุปกรณ์ยุค smartphone, camera และ IoT ไม่พอ NAT จึงถูกใช้เพื่อประหยัด public IP ชั่วคราว',
+      },
+      {
+        point: 'จุดเด่นของ IPv6 เช่น address space ใหญ่กว่า, header เรียบง่ายขึ้น, SLAAC และความเหมาะกับ mobile/IoT',
+        explanation:
+          'ถ้าโจทย์ถามว่าทำไม IPv6 สำคัญ อย่าตอบแค่ว่า IP เยอะขึ้น ควรชี้ด้วยว่ามันช่วยให้ออกแบบเครือข่ายระยะยาวง่ายขึ้นและเหมาะกับสภาพแวดล้อมที่มีอุปกรณ์จำนวนมาก',
+      },
+      {
+        point: 'รูปแบบ address ของ IPv4 แบบ decimal 32-bit เทียบกับ IPv6 แบบ hexadecimal 128-bit',
+        explanation:
+          'ข้อสอบอาจไม่ได้ถามให้เขียนเต็มทุกบิต แต่ต้องการให้คุณแยกให้ออกว่ารูปแบบการเขียนต่างกันอย่างไร และใช้ความต่างนี้ไปอธิบายว่าทำไม IPv6 จึงมี address space ใหญ่มากกว่าเดิม',
+      },
+      {
+        point: 'แนวทาง migration เช่น dual stack, tunneling และ translation/NAT64',
+        explanation:
+          'ส่วนนี้คือหัวใจของโจทย์เชิงองค์กร เพราะระบบจริงมักย้ายไม่พร้อมกันทั้งหมด คุณจึงต้องรู้ว่าช่วงเปลี่ยนผ่านควรให้ IPv4 กับ IPv6 อยู่ร่วมกันอย่างไร',
+      },
     ],
     examFocus: [
-      'อธิบายว่าทำไมองค์กรหรือมหาวิทยาลัยควรเริ่มย้ายจาก IPv4 ไป IPv6',
-      'เสนอวิธีใช้งานร่วมกันเมื่อยังมีระบบ IPv4 เดิมเหลืออยู่บางส่วน',
-      'ยกตัวอย่างสถานการณ์จริง เช่น campus ที่มี notebook, phone, IP camera และ IoT จำนวนมาก',
+      {
+        prompt: 'อธิบายว่าทำไมองค์กรหรือมหาวิทยาลัยควรเริ่มย้ายจาก IPv4 ไป IPv6',
+        answer:
+          'เริ่มจากปัญหา IPv4 address exhaustion ก่อน แล้วค่อยตามด้วยสิ่งที่ IPv6 ช่วยแก้ เช่น address space ที่ใหญ่ขึ้นและความเหมาะกับอุปกรณ์จำนวนมากในมหาวิทยาลัยหรือองค์กร',
+      },
+      {
+        prompt: 'เสนอวิธีใช้งานร่วมกันเมื่อยังมีระบบ IPv4 เดิมเหลืออยู่บางส่วน',
+        answer:
+          'คำตอบควรเริ่มที่ dual stack เป็นตัวเลือกหลัก จากนั้นค่อยยก tunneling หรือ NAT64 เมื่อมีข้อจำกัดเฉพาะ และต้องโยงกับบริบทว่าทำไมระบบเดิมยังตัดออกไม่ได้ทันที',
+      },
+      {
+        prompt: 'ยกตัวอย่างสถานการณ์จริง เช่น campus ที่มี notebook, phone, IP camera และ IoT จำนวนมาก',
+        answer:
+          'ตอบโดยเชื่อมสถานการณ์กับจำนวนอุปกรณ์และการเติบโตในอนาคต แล้วปิดท้ายว่าการใช้ IPv6 ช่วยลดแรงกดดันจาก NAT และทำให้การออกแบบเครือข่ายยืดหยุ่นขึ้น',
+      },
     ],
   },
   {
     moduleKey: '13',
     mustKnow: [
-      'ICMP ใช้เพื่อ diagnostic และ error reporting โดย ping ใช้ Echo Request/Echo Reply',
-      'ถ้า host อยู่คนละ subnet ต้องส่ง packet ไป default gateway ก่อน',
-      'router และ routing table มีบทบาทในการส่ง packet ข้าม network',
-      'ลำดับตรวจเมื่อ ping ไม่ผ่าน: IP, subnet mask, gateway, interface status, routing, firewall และ traceroute',
+      {
+        point: 'ICMP ใช้เพื่อ diagnostic และ error reporting โดย ping ใช้ Echo Request/Echo Reply',
+        explanation:
+          'อย่ามอง ICMP เป็นแค่ชื่อโปรโตคอล แต่ให้คิดว่ามันเป็นเครื่องมือช่วยวินิจฉัยการเชื่อมต่อ โดยเฉพาะเวลาที่โจทย์ให้วิเคราะห์ว่าทำไมเครื่องถึง ping กันไม่ผ่าน',
+      },
+      {
+        point: 'ถ้า host อยู่คนละ subnet ต้องส่ง packet ไป default gateway ก่อน',
+        explanation:
+          'ประเด็นนี้คือ logic หลักของการเดินทางของ packet ถ้าคุณอธิบายตรงนี้ไม่ได้ คำตอบเรื่อง troubleshooting ข้าม subnet จะหลุดทันที เพราะจะไม่รู้ว่า packet ต้องผ่านใครก่อน',
+      },
+      {
+        point: 'router และ routing table มีบทบาทในการส่ง packet ข้าม network',
+        explanation:
+          'ข้อสอบชอบให้ topology แล้วถามว่า router ตัวไหนหรือ interface ไหนเกี่ยวข้อง คุณจึงต้องตอบได้ว่า router ใช้ routing table ตัดสินใจส่ง packet ไปทางใด',
+      },
+      {
+        point: 'ลำดับตรวจเมื่อ ping ไม่ผ่าน: IP, subnet mask, gateway, interface status, routing, firewall และ traceroute',
+        explanation:
+          'อาจารย์ต้องการเห็นการวิเคราะห์เป็นขั้น ไม่ใช่เดาสาเหตุลอย ๆ จึงควรตอบให้เห็นว่าคุณเช็กจากค่าพื้นฐานใกล้ตัวก่อน แล้วค่อยไล่ไปยังอุปกรณ์และเส้นทางกลางทาง',
+      },
     ],
     examFocus: [
-      'วิเคราะห์ว่าทำไมเครื่องคนละ subnet จึงคุยกันตรง ๆ ไม่ได้',
-      'อ่าน topology แล้วบอก interface หรือ gateway ที่ packet ต้องผ่าน',
-      'เสนออย่างน้อย 3 สาเหตุที่ ping ไม่สำเร็จ พร้อมวิธีตรวจสอบทีละขั้น',
+      {
+        prompt: 'วิเคราะห์ว่าทำไมเครื่องคนละ subnet จึงคุยกันตรง ๆ ไม่ได้',
+        answer:
+          'เริ่มจากบอกว่า host จะสื่อสารตรงกันได้เฉพาะใน local subnet ถ้าอยู่อีกวงต้องส่งไป default gateway ก่อน แล้วให้ router ส่งต่อไปยัง network ปลายทาง',
+      },
+      {
+        prompt: 'อ่าน topology แล้วบอก interface หรือ gateway ที่ packet ต้องผ่าน',
+        answer:
+          'แนวตอบที่ดีคือระบุ subnet ต้นทางก่อน แล้วชี้ gateway ของวงนั้น จากนั้นอธิบายต่อว่า router interface ไหนเป็นทางออกและเกี่ยวข้องกับ route ไปยังปลายทาง',
+      },
+      {
+        prompt: 'เสนออย่างน้อย 3 สาเหตุที่ ping ไม่สำเร็จ พร้อมวิธีตรวจสอบทีละขั้น',
+        answer:
+          'ตอบเป็นลำดับ เช่น เช็ก IP/mask/gateway ก่อน แล้วค่อยดู interface status, routing table และ firewall หรือใช้ traceroute เพื่อหาว่า packet หายที่ hop ไหน',
+      },
     ],
   },
   {
     moduleKey: '14',
     mustKnow: [
-      'Transport Layer ช่วย segmentation, multiplexing, flow control และ error recovery',
-      'Port numbers ทำให้หลาย application ใช้เครือข่ายพร้อมกันได้',
-      'TCP มักเหมาะกับ traffic ที่ต้องการความเชื่อถือได้ ส่วน UDP มักเหมาะกับ real-time traffic ที่ยอมเสีย packet บางส่วนได้',
-      'สาเหตุที่ video/voice มีความไวต่อ latency, jitter และ packet loss มากกว่า traffic ทั่วไป',
+      {
+        point: 'Transport Layer ช่วย segmentation, multiplexing, flow control และ error recovery',
+        explanation:
+          'หัวข้อนี้ต้องเข้าใจว่าชั้น Transport เป็นตัวเชื่อมการส่งข้อมูลกับพฤติกรรมของ application จริง จึงไม่ใช่แค่ท่องชื่อหน้าที่ แต่ต้องเห็นผลลัพธ์ที่เกิดขึ้นเวลาแอปหลายตัวใช้งานพร้อมกัน',
+      },
+      {
+        point: 'Port numbers ทำให้หลาย application ใช้เครือข่ายพร้อมกันได้',
+        explanation:
+          'นี่คือเหตุผลที่ผู้ใช้เปิด web, chat และ email พร้อมกันได้โดยข้อมูลไม่ปะปนกัน ถ้าโจทย์ถามเรื่องหลาย application ให้โยงกลับมาที่ port และ multiplexing เสมอ',
+      },
+      {
+        point: 'TCP มักเหมาะกับ traffic ที่ต้องการความเชื่อถือได้ ส่วน UDP มักเหมาะกับ real-time traffic ที่ยอมเสีย packet บางส่วนได้',
+        explanation:
+          'เวลาตอบควรใช้คำว่า มัก หรือ โดยทั่วไป เพื่อสะท้อนว่าคุณเข้าใจลักษณะการใช้งาน ไม่ได้จำแบบแข็งว่าทุกแอปต้องใช้ protocol เดียวเสมอ',
+      },
+      {
+        point: 'สาเหตุที่ video/voice มีความไวต่อ latency, jitter และ packet loss มากกว่า traffic ทั่วไป',
+        explanation:
+          'ประเด็นนี้ช่วยอธิบายว่าทำไม application แบบ real-time ถึงเสียประสบการณ์เร็วกว่า แม้ระบบจะยังไม่ถึงกับใช้งานไม่ได้ทั้งหมด',
+      },
     ],
     examFocus: [
-      'อธิบาย segmentation และ multiplexing ให้ผูกกับเหตุการณ์จริง เช่น เปิด web, email, chat พร้อมกัน',
-      'วิเคราะห์ว่าทำไม video call กระตุก แต่ web ยังพอใช้งานได้',
-      'เสนอวิธีแก้ เช่น QoS, จำกัดบางบริการ, แยกทราฟฟิก หรือเช็ก congestion',
+      {
+        prompt: 'อธิบาย segmentation และ multiplexing ให้ผูกกับเหตุการณ์จริง เช่น เปิด web, email, chat พร้อมกัน',
+        answer:
+          'เริ่มจาก segmentation ว่าช่วยแบ่งข้อมูลให้ส่งได้เป็นส่วน ๆ แล้วค่อยตามด้วย multiplexing ที่ใช้ port แยก traffic ของแต่ละ application บนเครื่องเดียวกัน',
+      },
+      {
+        prompt: 'วิเคราะห์ว่าทำไม video call กระตุก แต่ web ยังพอใช้งานได้',
+        answer:
+          'ให้เริ่มจากลักษณะของ traffic real-time ที่ไวต่อ latency, jitter และ packet loss จากนั้นค่อยเปรียบเทียบกับ web traffic ที่ยังพอทนการรอหรือการกู้คืนข้อมูลได้มากกว่า',
+      },
+      {
+        prompt: 'เสนอวิธีแก้ เช่น QoS, จำกัดบางบริการ, แยกทราฟฟิก หรือเช็ก congestion',
+        answer:
+          'ตอบโดยไล่จากการจัด priority ให้ voice/video ก่อน แล้วค่อยพูดถึงการตรวจ congestion หรือแยกทราฟฟิกเพื่อไม่ให้ service สำคัญโดนแย่ง bandwidth',
+      },
     ],
   },
   {
     moduleKey: '16',
     mustKnow: [
-      'บทบาทของ VPN, ASA Firewall, IPS และ AAA Server ในการป้องกันและควบคุมการเข้าถึง',
-      'แนวคิด defense in depth และ network segmentation เพื่อลด lateral movement',
-      'ความต่างระหว่างการป้องกัน, การตรวจจับ และการควบคุมสิทธิ์',
-      'การดู baseline, จำนวน session, แหล่งที่มาของคำขอ และลักษณะ log เพื่อแยก usage ปกติกับ attack',
+      {
+        point: 'บทบาทของ VPN, ASA Firewall, IPS และ AAA Server ในการป้องกันและควบคุมการเข้าถึง',
+        explanation:
+          'หัวข้อนี้ต้องแยกบทบาทอุปกรณ์ให้ชัดว่าอะไรใช้เชื่อมต่อจากภายนอก อะไรใช้ allow/deny traffic อะไรใช้ detect/prevent attack และอะไรใช้พิสูจน์ตัวตนกับควบคุมสิทธิ์',
+      },
+      {
+        point: 'แนวคิด defense in depth และ network segmentation เพื่อลด lateral movement',
+        explanation:
+          'คำสำคัญคือการป้องกันหลายชั้นและการแบ่ง zone เครือข่าย เพื่อไม่ให้การ compromise จุดเดียวลามไปถึงระบบสำคัญทั้งองค์กรได้ง่าย',
+      },
+      {
+        point: 'ความต่างระหว่างการป้องกัน, การตรวจจับ และการควบคุมสิทธิ์',
+        explanation:
+          'ถ้าคุณแยกสามหน้าที่นี้ได้ คำตอบเรื่อง security จะคมขึ้นมาก เพราะจะไม่เอา firewall ไปตอบแทน IPS หรือเอา AAA ไปตอบแทนการกรองทราฟฟิก',
+      },
+      {
+        point: 'การดู baseline, จำนวน session, แหล่งที่มาของคำขอ และลักษณะ log เพื่อแยก usage ปกติกับ attack',
+        explanation:
+          'ข้อสอบมักให้สถานการณ์ทราฟฟิกผิดปกติ แล้วให้คุณวินิจฉัยว่าเป็นการใช้งานตามปกติหรือ compromised hosts ซึ่งต้องอาศัย pattern และ baseline มากกว่าการเดาจากยอดรวมทราฟฟิกอย่างเดียว',
+      },
     ],
     examFocus: [
-      'ระบุว่าอุปกรณ์ใดใน topology มีหน้าที่ allow/deny, detect/prevent หรือ authenticate',
-      'อธิบายว่า compromised hosts ภายในองค์กรจะมีสัญญาณแบบไหน',
-      'เสนอการตรวจสอบเหตุผิดปกติด้วย log analysis, traffic pattern และ segmentation impact',
+      {
+        prompt: 'ระบุว่าอุปกรณ์ใดใน topology มีหน้าที่ allow/deny, detect/prevent หรือ authenticate',
+        answer:
+          'ควรตอบโดยจับคู่หน้าที่กับอุปกรณ์ให้ชัด เช่น ASA Firewall สำหรับ allow/deny, IPS สำหรับ detect/prevent และ AAA สำหรับ authenticate หรือควบคุมสิทธิ์',
+      },
+      {
+        prompt: 'อธิบายว่า compromised hosts ภายในองค์กรจะมีสัญญาณแบบไหน',
+        answer:
+          'เริ่มจากบอกว่ามักเห็นพฤติกรรมผิดจาก baseline เช่น session จำนวนมากผิดปกติ ทราฟฟิกพุ่งไปยังปลายทางเดียว หรือ activity เกิดในเวลาที่ไม่สอดคล้องกับการใช้งานปกติ',
+      },
+      {
+        prompt: 'เสนอการตรวจสอบเหตุผิดปกติด้วย log analysis, traffic pattern และ segmentation impact',
+        answer:
+          'ให้ไล่ดู log และ pattern ของ source/destination ก่อน จากนั้นอธิบายว่า segmentation มีผลอย่างไรต่อขอบเขตความเสียหายและการกักปัญหา',
+      },
     ],
   },
   {
     moduleKey: '17',
     mustKnow: [
-      'ความหมายของ redundancy และการลด single point of failure',
-      'รูปแบบ redundancy ของ server, link, switch และ router',
-      'หลักการ failover และเหตุผลที่บางบริการอาจยังเข้าได้หลังอุปกรณ์หลักล่ม',
-      'แนวทางตรวจเส้นทางสำรอง เช่น physical link, port status, routing update, spanning tree และ server availability',
+      {
+        point: 'ความหมายของ redundancy และการลด single point of failure',
+        explanation:
+          'ประเด็นนี้หมายถึงการออกแบบเครือข่ายให้มีองค์ประกอบสำรอง เพื่อไม่ให้ความเสียหายจากจุดเดียวทำให้บริการทั้งหมดล่มพร้อมกัน',
+      },
+      {
+        point: 'รูปแบบ redundancy ของ server, link, switch และ router',
+        explanation:
+          'คุณควรแยกให้ออกว่า redundancy มีได้หลายชั้น และแต่ละแบบช่วยรับมือปัญหาคนละประเภท เช่น สายขาด อุปกรณ์ล่ม หรือ service ปลายทางล้มเหลว',
+      },
+      {
+        point: 'หลักการ failover และเหตุผลที่บางบริการอาจยังเข้าได้หลังอุปกรณ์หลักล่ม',
+        explanation:
+          'ข้อสอบชอบถามว่าทำไมระบบยังไม่ล่มทั้งหมดแม้อุปกรณ์หลักจะพัง ซึ่งต้องตอบให้ได้ว่ามี path หรือ device สำรองเข้ามารับงานแทนอย่างไร',
+      },
+      {
+        point: 'แนวทางตรวจเส้นทางสำรอง เช่น physical link, port status, routing update, spanning tree และ server availability',
+        explanation:
+          'เวลาตรวจ failover อย่ามองเฉพาะ routing อย่างเดียว เพราะปัญหาอาจอยู่ที่สาย พอร์ต การ converge ของ path หรือแม้แต่ service ปลายทางที่ยังไม่พร้อมใช้งาน',
+      },
     ],
     examFocus: [
-      'อธิบายว่าระบบสำรองช่วยลดผลกระทบจาก network failure อย่างไร',
-      'วิเคราะห์ว่าทำไมบางผู้ใช้ยังได้รับผลกระทบทั้งที่มี backup path แล้ว',
-      'เชื่อมโยงปัญหา link failure, router failure, bandwidth limit และ configuration mismatch',
+      {
+        prompt: 'อธิบายว่าระบบสำรองช่วยลดผลกระทบจาก network failure อย่างไร',
+        answer:
+          'เริ่มจากอธิบายว่า redundancy ลด single point of failure แล้วตามด้วยภาพว่าเมื่ออุปกรณ์หลักล่ม ระบบสามารถสลับไปใช้ path หรืออุปกรณ์สำรองได้',
+      },
+      {
+        prompt: 'วิเคราะห์ว่าทำไมบางผู้ใช้ยังได้รับผลกระทบทั้งที่มี backup path แล้ว',
+        answer:
+          'แนวตอบควรชี้ว่าการมี backup path ไม่ได้แปลว่าทุกอย่างเหมือนเดิมทันที อาจยังติดปัญหา routing update, spanning tree, policy หรือ bandwidth ของเส้นสำรอง',
+      },
+      {
+        prompt: 'เชื่อมโยงปัญหา link failure, router failure, bandwidth limit และ configuration mismatch',
+        answer:
+          'ให้ตอบแบบไล่สาเหตุเป็นระบบ โดยเริ่มจาก physical link และอุปกรณ์ จากนั้นค่อยไปยัง route, capacity ของ backup link และความสอดคล้องของ config บน path สำรอง',
+      },
     ],
   },
 ];
@@ -984,9 +1130,9 @@ export const reviewReferenceText = [
     return [
       `${info.badge}: ${info.title}`,
       'Must know:',
-      ...module.mustKnow.map((item) => `- ${item}`),
+      ...module.mustKnow.map((item) => `- ${item.point}`),
       'Exam focus:',
-      ...module.examFocus.map((item) => `- ${item}`),
+      ...module.examFocus.map((item) => `- ${item.prompt}`),
       '',
     ];
   }),

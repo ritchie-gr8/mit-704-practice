@@ -7,6 +7,48 @@ import {
   labChecklist,
 } from '@/lib/finalExamContent';
 
+function AnnotatedList({
+  title,
+  accentLabel,
+  accentClassName,
+  detailLabel,
+  items,
+}: {
+  title: string;
+  accentLabel: string;
+  accentClassName: string;
+  detailLabel: string;
+  items: { heading: string; detail: string }[];
+}) {
+  return (
+    <section className={`rounded-[26px] border p-5 shadow-sm ${accentClassName}`}>
+      <div className="flex items-center justify-between gap-4">
+        <h3 className="text-base font-semibold">{title}</h3>
+        <span className="rounded-full bg-white/75 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+          {accentLabel}
+        </span>
+      </div>
+      <div className="mt-4 space-y-4">
+        {items.map((item, index) => (
+          <div
+            key={item.heading}
+            className={`${index !== items.length - 1 ? 'border-b border-current/10 pb-4' : ''}`}
+          >
+            <div className="flex gap-2 text-sm font-medium leading-relaxed">
+              <span className="mt-0.5">•</span>
+              <p>{item.heading}</p>
+            </div>
+            <div className="mt-2 ml-5 rounded-2xl bg-white/65 px-4 py-3 text-sm leading-relaxed text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]">
+              <span className="font-semibold text-slate-900">{detailLabel}:</span>{' '}
+              {item.detail}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function ExamGuidePage() {
   return (
     <div className="space-y-10">
@@ -70,29 +112,27 @@ export default function ExamGuidePage() {
                   final exam focus
                 </span>
               </div>
-              <div className="mt-4 grid gap-6 md:grid-cols-2">
-                <div className="rounded-2xl border border-pink-50 bg-pink-50/70 p-5">
-                  <h3 className="text-base font-semibold text-pink-700">ประเด็นที่ต้องรู้</h3>
-                  <ul className="mt-3 space-y-2 text-sm text-pink-900/80">
-                    {module.mustKnow.map((item) => (
-                      <li key={item} className="flex gap-2">
-                        <span>•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="rounded-2xl border border-indigo-50 bg-indigo-50/70 p-5">
-                  <h3 className="text-base font-semibold text-indigo-700">แนวข้อสอบ</h3>
-                  <ul className="mt-3 space-y-2 text-sm text-indigo-900/80">
-                    {module.examFocus.map((item) => (
-                      <li key={item} className="flex gap-2">
-                        <span>•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              <div className="mt-5 space-y-5">
+                <AnnotatedList
+                  title="ประเด็นที่ต้องรู้"
+                  accentLabel="know"
+                  detailLabel="คำอธิบาย"
+                  accentClassName="border-pink-100 bg-gradient-to-br from-pink-50/95 via-rose-50/90 to-white text-pink-950"
+                  items={module.mustKnow.map((item) => ({
+                    heading: item.point,
+                    detail: item.explanation,
+                  }))}
+                />
+                <AnnotatedList
+                  title="แนวข้อสอบ"
+                  accentLabel="answer"
+                  detailLabel="คำตอบ"
+                  accentClassName="border-indigo-100 bg-gradient-to-br from-indigo-50/95 via-sky-50/85 to-white text-indigo-950"
+                  items={module.examFocus.map((item) => ({
+                    heading: item.prompt,
+                    detail: item.answer,
+                  }))}
+                />
               </div>
             </article>
           );
